@@ -1,0 +1,40 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+string intToRoman(int num) {
+    // Define the Roman numeral values
+    string roman[] = {"X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC", "C"};
+    string ones[] = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+
+    string result = "";
+
+    // Handle the tens place
+    if (num >= 10) {
+        int tens = num / 10;
+        result += roman[tens - 1];
+        num %= 10;
+    }
+
+    // Handle the ones place
+    if (num > 0) {
+        result += ones[num - 1];
+    }
+
+    return result;
+}
+
+int main() {
+    int num;
+
+    cout << "Enter a number (1-99): ";
+    cin >> num;
+
+    if (num < 1 || num > 99) {
+        cout << "Please enter a valid number between 1 and 99." << endl;
+    } else {
+        cout << "The Roman numeral is: " << intToRoman(num) << endl;
+    }
+
+    return 0;
+}
