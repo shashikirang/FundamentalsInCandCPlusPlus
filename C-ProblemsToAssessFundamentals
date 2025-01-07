@@ -181,7 +181,7 @@ int main() {
 }
 
 ==================================================================================================================================================================================
-There is a series, , where the next term is the sum of pervious three terms. Given the first three terms of the series, , , and  respectively, you have to output the nth term of the series using recursion.
+4. There is a series, , where the next term is the sum of pervious three terms. Given the first three terms of the series, , , and  respectively, you have to output the nth term of the series using recursion.
 
 Recursive method for calculating nth term is given below.
 
@@ -239,5 +239,42 @@ int main() {
 }
 
 ==================================================================================================================================================================================
+5. Reverse bits in a number 
+
+
+#include <stdio.h>
+#include <stdint.h>
+
+// Function to reverse the bits of a given integer
+unsigned int reverseBits(unsigned int num) {
+    unsigned int reversed = 0; // Variable to hold the reversed bits
+    int bitCount = sizeof(num) * 8; // Total number of bits in the integer
+
+    for (int i = 0; i < bitCount; i++) {
+        // Shift reversed bits left to make space for the next bit
+        reversed <<= 1;
+        
+        // Extract the last bit of num and add it to reversed
+        if (num & 1) {
+            reversed |= 1;
+        }
+        
+        // Shift num right to process the next bit
+        num >>= 1;
+    }
+    return reversed;
+}
+
+int main() {
+    unsigned int num = 13; // Example number
+    printf("Original number: %u\n", num);
+    unsigned int reversed = reverseBits(num);
+    printf("Reversed bits: %u\n", reversed);
+    return 0;
+}
+
+Example:
+If the input number is 13 (binary: 0000000000001101 in 16 bits), the reversed output will be 2952790016 (binary: 10110000000000000000000000000000 in 32 bits).
+
 ==================================================================================================================================================================================
 ==================================================================================================================================================================================
