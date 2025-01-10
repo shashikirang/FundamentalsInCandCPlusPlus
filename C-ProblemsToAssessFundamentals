@@ -181,7 +181,7 @@ int main() {
 }
 
 ==================================================================================================================================================================================
-4. There is a series, , where the next term is the sum of pervious three terms. Given the first three terms of the series, , , and  respectively, you have to output the nth term of the series using recursion.
+4. There is a series,where the next term is the sum of pervious three terms. Given the first three terms of the series, , , and  respectively, you have to output the nth term of the series using recursion.
 
 Recursive method for calculating nth term is given below.
 
