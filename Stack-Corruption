@@ -1,0 +1,190 @@
+===================================
+Stack Corruption
+===================================
+
+In C and C++, a stack is a data structure that allows data to be stored and retrieved in a particular order. stack operates on principle of Last-In-First-Out (LIFO), meaning that last element that is pushed onto stack will be first one to be popped off.
+
+The stack is a critical component of memory management system in C and C++. It is used to store temporary variables, function arguments, and return addresses. stack is also used to manage memory allocation of dynamically allocated memory, such as heap.
+
+Causes for stack corruption: 
+1) Buffer overflow 
+2) Stack underflow 
+3) Stack pointer pointing to invalid location 
+4) Accessing array out of bounds 
+
+When stack becomes corrupt, it can lead to a wide range of issues, such as segmentation faults, data corruption, and program crashes. problem can be especially challenging to debug, as root cause of issue may not be immediately apparent.
+
+Buffer overflow: 
+================ 
+char buffer[10];
+
+void function(char* input) {
+   strcpy(buffer, input);
+}
+
+int main() {
+   char* input = "This is a long string that will overflow buffer";
+   function(input);
+}
+
+In this code, function function() tries to copy input string into buffer. However, input string is larger than size of buffer, which will result in a buffer overflow. This can cause stack to become corrupt, leading to program crashes and other issues.
+
+
+Stack underflow: 
+================= 
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX 5
+
+int stack[MAX];
+int top = -1; // Stack is empty
+
+// Function to pop an element from the stack
+int pop() {
+    if (top == -1) { // Stack is empty
+        printf("Stack Underflow! Cannot pop from an empty stack.\n");
+        return -1; // Error value
+    }
+    return stack[top--];
+}
+
+int main() {
+    // Attempting to pop from an empty stack
+    pop();
+    return 0;
+}
+
+Invalid Stack Pointer:
+======================== 
+int* ptr;
+
+void function() {
+   int a = 10;
+   ptr = &a;
+}
+
+int main() {
+   function();
+   *ptr = 20;
+}
+In this code, function function() initializes a local variable a and sets global pointer ptr to point to its address. However, when function returns, variable a goes out of scope, and memory it was using is no longer part of stack. When program tries to access memory using pointer ptr, it will result in an invalid stack pointer and a corrupt stack.
+
+
+Recursive leading to Stack memory exhaustion: 
+===============================================
+ 
+#include<stdio.h> 
+  
+ int main(void) 
+ { 
+     int a=0; 
+     a += 1; 
+     main(); 
+  
+     return 0; 
+ }
+ 
+Accessing array out of bounds:
+================================== 
+#include<stdio.h> 
+  
+ unsigned int count = 1; 
+  
+ int main(void) 
+ { 
+     int b = 10; 
+     int a[3]; 
+     a[0] = 1; 
+     a[1] = 2; 
+     a[2] = 3; 
+  
+     printf("\n b = %d \n",b); 
+     a[3] = 12; 
+     printf("\n b = %d \n",b); 
+  
+     return 0; 
+ } 
+ 
+=============================================== 
+When does kernel fail to generate stack trace ?
+===============================================
+ 
+ The kernel may fail to print a stack trace when a **stack corruption** has occurred because the corrupted stack prevents it from reliably walking back through the stack frames. This can happen in scenarios where the stack contents are damaged, making it impossible for the kernel to determine the proper call hierarchy. Below are some key reasons and situations where this happens:
+
+---
+
+### **1. Overwriting the Return Address**
+- If a bug (e.g., a buffer overflow) overwrites the return address stored in the stack, the kernel may not be able to trace back to the caller's stack frame.
+- **Example:**
+  - A function writes beyond the bounds of a local buffer, overwriting the return address or saved stack pointer.
+  - When the kernel tries to trace the stack, it encounters invalid or non-existent pointers.
+
+---
+
+### **2. Invalid Stack Pointer**
+- If the stack pointer (`SP` or `RSP` on x86-64) is corrupted or moved outside the valid stack memory, the kernel cannot walk back properly through the stack.
+- This can happen due to:
+  - Kernel bugs or mismanaged assembly code.
+  - Manual corruption of the `SP` register by faulty code.
+- As a result, the kernel might crash or halt without printing a stack trace.
+
+---
+
+### **3. Infinite Recursion or Stack Overflow**
+- When recursion causes a stack overflow, the stack is exhausted, and any attempt to unwind it may fail because:
+  - The memory beyond the stack is invalid or inaccessible.
+  - The kernel cannot find valid return addresses in the corrupted stack area.
+
+---
+
+### **4. Misaligned or Corrupted Stack Frames**
+- Kernel stack traces rely on properly aligned and formatted stack frames.
+- If stack frames are corrupted (e.g., wrong frame pointer values), the kernel trace walker may fail to navigate through them.
+- **Example:** A poorly written kernel module might corrupt the frame pointer, leading to an incomplete or missing trace.
+
+---
+
+### **5. Interrupt Context Corruption**
+- If an interrupt handler corrupts the stack (e.g., overwriting values in a way that disrupts context saving), the kernel might fail to trace back the interrupt's source or the previous stack state.
+- **Example:** Nested interrupts or race conditions modifying the same stack area.
+
+---
+
+### **6. Architectures Without Reliable Stack Unwinding**
+- Some architectures do not natively support reliable stack unwinding mechanisms. For example:
+  - In x86 systems with **frame pointer omission** (`-fomit-frame-pointer`), the kernel can't depend on frame pointers for stack unwinding.
+  - Instead, it relies on debugging information (like DWARF), which may be unavailable or corrupted.
+
+---
+
+### **7. Double Fault or Critical Exceptions**
+- A double fault (e.g., an exception triggered while handling another exception) can corrupt the kernel stack.
+- In such cases, the kernel may switch to a different stack (e.g., the **double fault handler stack**) or panic without generating a stack trace.
+
+---
+
+### **Example in Kernel Development**
+#### Corruption Example:
+```c
+void buggy_function(void) {
+    char buffer[10];
+    strcpy(buffer, "This string is way too long!");  // Overflows stack
+}
+```
+
+- The return address might be overwritten, and when the kernel tries to unwind the stack, it encounters invalid memory or crashes, failing to print the trace.
+
+---
+
+### **How to Handle This in the Kernel**
+1. **Use Stack Canary Protections:** 
+   - Kernel features like **stack protector** (`CONFIG_STACKPROTECTOR`) can detect stack corruption early.
+   
+2. **Enable Frame Pointers:**
+   - Compile the kernel with `CONFIG_FRAME_POINTER` to make stack unwinding more reliable.
+
+3. **Debugging Aids:**
+   - Use kernel debugging tools like `ftrace`, `kprobes`, or `kgdb`.
+   - Enable verbose logging and crash dump tools to capture as much context as possible before the corruption.
+
