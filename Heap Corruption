@@ -1,0 +1,106 @@
+HEAP COrruption: 
+
+Heap corruption occurs when a program modifies memory in the heap in an unintended or invalid way,
+leading to data corrpution, unpredictable behavior, crashes, or security vulnerabilities.
+
+The heap is a dynamically allocated memory region, managed by functions like malloc(), free() (C) or new, delete (C++).
+Corruption happens when the program incorrectly manipulates heap memory, causing memory management structures to become inconsistent.
+
+Causes for Heap corruption: 
+--------------------------------
+. attempt to free memory that was already freed.
+. attempt to free memory using a pointer that was not returned by an allocation function.
+. attempt to access (read or write) memory that was freed earlier.
+. attempt to write to memory using an uninitialized pointer
+. attempt to access elements which are out of the bounds of a dynamically allocated array
+
+Heap corruption can occur due to several reasons:
+
+1. **Writing Beyond Allocated Memory (Buffer Overflow)**
+**Cause:** Accessing memory beyond the allocated space.
+**Example:**
+```cpp
+     #include <iostream>
+     #include <cstring>
+
+     int main() {
+         char *ptr = new char[5]; // Allocate 5 bytes
+         strcpy(ptr, "HelloWorld"); // Writing more than 5 bytes
+
+         delete[] ptr; // Might cause corruption
+         return 0;
+     }
+
+`"HelloWorld"` is 11 characters, but only 5 bytes are allocated.
+
+
+**Double Free or Delete**
+**Cause:** Freeing the same memory twice.
+**Example:**
+```cpp
+     #include <iostream>
+
+     int main() {
+         int *ptr = new int(10);
+         delete ptr;
+         delete ptr; // Double delete causes heap corruption
+
+         return 0;
+     }
+
+
+ 3. **Use-After-Free (Dangling Pointer)**
+**Cause:** Using memory after it has been deallocated.
+**Example:**
+```cpp
+     #include <iostream>
+
+     int main() {
+         int *ptr = new int(42);
+         delete ptr;
+
+         *ptr = 100; // Writing to freed memory -> Heap corruption
+         std::cout << *ptr << std::endl;
+
+         return 0;
+     }
+     ```
+The pointer is dangling after `delete`, but the program still accesses it.
+
+4. **Memory Leak Leading to Heap Exhaustion**
+**Cause:** Forgetting to free allocated memory, causing the heap to run out of space.
+**Example:**
+```cpp
+     void memoryLeak() {
+         int *ptr = new int[1000]; // No delete -> Memory leak
+     }
+Over time, the heap gets filled with unused memory.
+
+ 5. Corrupting Heap Metadata
+**Cause:** Overwriting memory used internally by the heap manager.
+**Example:**
+```cpp
+     #include <cstdlib>
+     #include <cstring>
+
+     int main() {
+         char *ptr = (char*)malloc(10);
+         memset(ptr - 10, 0, 20); // Writing before allocated space
+         free(ptr);
+
+         return 0;
+     }
+
+
+Debugging Tools:
+- **AddressSanitizer (ASan)** (GCC, Clang)
+- **Valgrind** (for Linux)
+- **Electric Fence**
+- **Windows Debugger (`gflags`, Application Verifier)**
+
+Code practices:
+- Always **initialize pointers** (`nullptr`).
+- Use **smart pointers** (`std::unique_ptr`, `std::shared_ptr`).
+- Avoid **manual memory management** where possible.
+- Use **bounds-checking** functions.
+
