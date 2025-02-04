@@ -84,11 +84,153 @@ int main() {
     
     switch(mode) 
     {
-        case 1: PassingFunc(addition, a, b);
-        case 2: PassingFunc(subtraction, a, b);
-        case 3: PassingFunc(multiplication, a, b);
-        case 4: PassingFunc(division, a, b);
+        case 1: PassingFunc(addition, a, b); break;
+        case 2: PassingFunc(subtraction, a, b); break; 
+        case 3: PassingFunc(multiplication, a, b); break; 
+        case 4: PassingFunc(division, a, b); break; 
     }
-    
+
+    /* or 2) Assigning a function to a variable 
+    *  switch(mode) 
+    * {
+    *    case 1: func = addition; break;
+    *    case 2: func = subtraction; break;
+    *    case 3: func = multiplication; break; 
+    *    case 4: func = division; break;
+    * }
+    * 
+    *    cout << "Result =" << func(a, b) << endl;
+    */
+
     return 0;
 }
+
+
+3) Store the function in the container 
+
+#include <iostream>
+#include <functional>
+#include <cstdint>
+
+
+using namespace std;
+
+typedef function<int(int,int)> FuncType;
+
+int addition(int x, int y)
+{
+    return x+y; 
+}
+
+int subtraction(int x, int y)
+{
+    return x-y;
+}
+
+int multiplication(int x, int y)
+{
+    return x*y;
+}
+
+int division(int x, int y)
+{
+    return x/y;
+}
+
+int main() {
+    
+    cout << "FuncType : passing function as an argument " << endl;
+    int a, b, c; 
+    int mode;
+    vector<FuncType>  functions;
+
+    functions.push_back(addition);
+    functions.push_back(subtraction);
+    functions.push_back(multiplication);
+    functions.push_back(division);
+
+    cout << "Select mode:" << endl;
+    cout << "1.Addition" << endl;
+    cout << "2.Subtraction" << endl;
+    cout << "3.Multiplication" << endl;
+    cout << "4.Division" << endl;
+    cout << "Choice: " ;
+    cin >> mode; 
+    
+    if (mode <1 || mode >4) 
+    {
+        cout << "Invalid choice" << endl;
+        return 1;
+    }
+    
+    cout << "a-> "; 
+    cin >> a; 
+    
+    while (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(INT8_MAX, '\n'); 
+        
+        cout << "Enter only numbers :\n";
+        cout << "Enter a number for a : "; 
+        cin >> a; 
+    }
+    
+    
+    cout << "b-> "; 
+    cin >> b; 
+    
+    while (cin.fail())
+    {
+        cin.clear();
+        cin.ignore(INT8_MAX, '\n'); 
+        
+        cout << "Enter only numbers :\n";
+        cout << "Enter a number for b : "; 
+        cin >> b; 
+    }
+
+    cout << "Result = " <<  functions.at(mode - 1)(a, b) << endl;
+ 
+    return 0;
+}
+
+4) New functions at runtime from the existing functions 
+#include <iostream>
+#include <functional>
+
+// Function to add two numbers
+int add(int a, int b) {
+    return a + b;
+}
+
+// Higher-order function: Returns a function that multiplies the result of another function
+std::function<int(int, int)> makeMultiplier(std::function<int(int, int)> func, int factor) {
+    return [func, factor](int x, int y) {
+        return func(x, y) * factor;
+    };
+}
+
+// Function Currying: Converts a binary function into a unary function sequence
+std::function<std::function<int(int)>(int)> curryAdd() {
+    return [](int a) {
+        return [a](int b) {
+            return a + b;
+        };
+    };
+}
+
+int main() {
+    // Create a new function by multiplying the result of `add` by 2
+    auto multiplyAddBy2 = makeMultiplier(add, 2);
+    std::cout << "Result of (add * 2): " << multiplyAddBy2(3, 4) << std::endl; // (3+4) * 2 = 14
+
+    // Curry the add function
+    auto curriedAdd = curryAdd();
+    auto add5 = curriedAdd(5); // Creates a new function that adds 5
+    std::cout << "Curried Add (5 + 3): " << add5(3) << std::endl; // 5 + 3 = 8
+
+    return 0;
+}
+
+
