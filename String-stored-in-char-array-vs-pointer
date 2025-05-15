@@ -1,0 +1,42 @@
+Case 1: `char[] str = "abcdef";`
+
+You *can* modify `str[0] = 'X';`
+
+Why?
+
+* This creates a **mutable character array** on the **stack**, initialized with the contents of the string literal.
+* Memory is **copied** from the string literal `"abcdef"` into a new array.
+* So `str[0] = 'X';` modifies your local array — **totally legal**.
+
+Equivalent code:
+
+char str[] = {'a', 'b', 'c', 'd', 'e', 'f', '\0'};
+
+`char *str = "abcde";`
+
+`str[0] = 'X';` causes **undefined behavior** (often segfault)
+
+Why?
+
+* Here, `str` is a pointer to a **string literal**, which resides in **read-only memory (ROM / .rodata)**.
+* Most modern compilers place string literals in a **read-only section** of memory.
+* Modifying a string literal like `*str = 'X'` is **undefined behavior** in C/C++.
+
+Technically:
+
+char* str = "abcde"; // str points to a literal
+
+You're not allowed to modify string literals!
+
+
+| Code                         | Memory Location     | Modifiable | Legal?                          |
+| ---------------------------- | ------------------- | ---------- | ------------------------------- |
+| `char str[] = "abcde";`      | Stack (local array) | Yes      | Safe                          |
+| `char *str = "abcde";`       | Read-only memory    | No       | UB (unsafe)                   |
+| `const char *str = "abcde";` | Read-only memory    | No       | Safe, warns you not to modify |
+
+Best Practice
+
+If you're pointing to a string literal, always declare it `const`:
+
+const char *str = "abcde"; // prevents accidental modification
