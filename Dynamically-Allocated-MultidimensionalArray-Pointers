@@ -1,0 +1,81 @@
+============
+2D Array
+============
+
+#include <iostream>
+
+#define ROWS 2 
+#define COLUMNS 3
+using namespace std; 
+
+int main()
+{
+    int ** arr2D = new int*[ROWS];
+    
+    for ( int i =0; i< ROWS; i++) {
+        arr2D[i] = new int[COLUMNS];
+    }
+
+    for ( int i =0; i<ROWS; i++) {
+        cout << " Value at row[" << i << "] : " << " columns :  ";
+        for (int j=0; j< COLUMNS; j++) {
+            
+            *(*(arr2D + i) + j) = i*COLUMNS + j;
+            cout <<  *(*(arr2D + i) + j) << '\t' ;
+        }
+        cout << endl;
+    }
+    
+     // Free memory
+    for (int i = 0; i < ROWS; ++i) {
+        delete[] arr2D[i];
+    }
+    delete[] arr2D;
+
+    return 0;
+}
+
+============================================================================================================
+============
+3D array 
+============
+
+#include <iostream>
+
+int main() {
+    int depth = 2, rows = 3, cols = 4;
+
+    int*** array3D = new int**[depth];
+    for (int i = 0; i < depth; ++i) {
+        array3D[i] = new int*[rows];
+        for (int j = 0; j < rows; ++j) {
+            array3D[i][j] = new int[cols];
+        }
+    }
+
+    // Initialize and print
+    for (int i = 0; i < depth; ++i) {
+        std::cout << "Depth " << i << ":\n";
+        for (int j = 0; j < rows; ++j) {
+            for (int k = 0; k < cols; ++k) {
+                //array3D[i][j][k] = i * 100 + j * 10 + k;
+                *(*(*(array3D + i) + j) + k) = i * depth + j * rows + k ;
+                //std::cout << array3D[i][j][k] << " ";
+                std::cout << *(*(*(array3D + i) + j) + k) << '\t';
+            }
+            std::cout << "\n";
+        }
+        std::cout << "\n";
+    }
+
+    // Free memory
+    for (int i = 0; i < depth; ++i) {
+        for (int j = 0; j < rows; ++j) {
+            delete[] array3D[i][j];
+        }
+        delete[] array3D[i];
+    }
+    delete[] array3D;
+
+    return 0;
+}
