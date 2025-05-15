@@ -40,3 +40,17 @@ Best Practice
 If you're pointing to a string literal, always declare it `const`:
 
 const char *str = "abcde"; // prevents accidental modification
+
+
+
+Allowed:
+
+char * str = "abcdef";
+str++;
+cout << "str" << str <<endl;
+//will print bcdef
+
+Not Allowed: 
+
+char str[] = "abcdef";
+str++; //Error 
